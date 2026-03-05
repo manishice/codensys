@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+
+  db:
+    image: mysql:8
+    container_name: metadata_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: metadata
+    ports:
+      - "3306:3306"
+
+  api:
+    build: .
+    container_name: metadata_api
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env

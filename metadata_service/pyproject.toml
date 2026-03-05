@@ -1,0 +1,28 @@
+[project]
+name = "metadata-service"
+version = "0.1.0"
+description = "Dataset metadata lineage service"
+authors = [
+    {name = "Rabindra Maharana"}
+]
+requires-python = ">=3.10,<4.0"
+dependencies = [
+    "fastapi (>=0.135.1,<0.136.0)",
+    "uvicorn[standard] (>=0.41.0,<0.42.0)",
+    "pymysql (>=1.1.2,<2.0.0)",
+    "sqlalchemy (>=2.0.48,<3.0.0)",
+    "alembic (>=1.18.4,<2.0.0)",
+    "python-dotenv (>=1.2.2,<2.0.0)"
+]
+
+[dependency-groups]
+dev = [
+    "black (>=26.1.0,<27.0.0)",
+    "flake8 (>=7.3.0,<8.0.0)",
+    "pre-commit (>=4.5.1,<5.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
