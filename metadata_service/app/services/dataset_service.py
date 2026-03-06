@@ -13,16 +13,13 @@ def create_dataset(db, data):
     if len(parts) != 4:
         raise HTTPException(
             status_code=400,
-            detail="Invalid FQN format. Expected connection.database.schema.table"
+            detail="Invalid FQN format. Expected connection.database.schema.table",
         )
 
     existing = db.query(Dataset).filter(Dataset.fqn == data.fqn).first()
 
     if existing:
-        raise HTTPException(
-            status_code=400,
-            detail="Dataset already exists"
-        )
+        raise HTTPException(status_code=400, detail="Dataset already exists")
 
     dataset = Dataset(
         fqn=data.fqn,
@@ -30,7 +27,7 @@ def create_dataset(db, data):
         database_name=parts[1],
         schema_name=parts[2],
         table_name=parts[3],
-        source_type=data.source_type
+        source_type=data.source_type,
     )
 
     try:
@@ -38,11 +35,7 @@ def create_dataset(db, data):
         db.flush()  # get dataset.id before commit
 
         for col in data.columns:
-            column = ColumnModel(
-                dataset_id=dataset.id,
-                name=col.name,
-                type=col.type
-            )
+            column = ColumnModel(dataset_id=dataset.id, name=col.name, type=col.type)
             db.add(column)
 
         db.commit()
@@ -52,7 +45,4 @@ def create_dataset(db, data):
 
     except SQLAlchemyError:
         db.rollback()
-        raise HTTPException(
-            status_code=500,
-            detail="Database error occurred"
-        )
+        raise HTTPException(status_code=500, detail="Database error occurred")

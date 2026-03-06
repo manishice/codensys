@@ -5,7 +5,6 @@ from app.models.lineage import Lineage
 from sqlalchemy.exc import SQLAlchemyError
 
 
-
 def detect_cycle(db, upstream_id, downstream_id):
 
     stack = [downstream_id]
@@ -22,9 +21,7 @@ def detect_cycle(db, upstream_id, downstream_id):
 
         visited.add(node)
 
-        children = db.query(Lineage).filter(
-            Lineage.upstream_dataset_id == node
-        ).all()
+        children = db.query(Lineage).filter(Lineage.upstream_dataset_id == node).all()
 
         for child in children:
             stack.append(child.downstream_dataset_id)
@@ -34,46 +31,37 @@ def detect_cycle(db, upstream_id, downstream_id):
 
 def create_lineage(db, data):
 
-    upstream = db.query(Dataset).filter(
-        Dataset.fqn == data.upstream_dataset
-    ).first()
+    upstream = db.query(Dataset).filter(Dataset.fqn == data.upstream_dataset).first()
 
-    downstream = db.query(Dataset).filter(
-        Dataset.fqn == data.downstream_dataset
-    ).first()
+    downstream = (
+        db.query(Dataset).filter(Dataset.fqn == data.downstream_dataset).first()
+    )
 
     if not upstream or not downstream:
-        raise HTTPException(
-            status_code=404,
-            detail="Dataset not found"
-        )
+        raise HTTPException(status_code=404, detail="Dataset not found")
 
     if upstream.id == downstream.id:
         raise HTTPException(
-            status_code=400,
-            detail="Upstream and downstream dataset cannot be the same"
+            status_code=400, detail="Upstream and downstream dataset cannot be the same"
         )
 
-    existing = db.query(Lineage).filter(
-        Lineage.upstream_dataset_id == upstream.id,
-        Lineage.downstream_dataset_id == downstream.id
-    ).first()
+    existing = (
+        db.query(Lineage)
+        .filter(
+            Lineage.upstream_dataset_id == upstream.id,
+            Lineage.downstream_dataset_id == downstream.id,
+        )
+        .first()
+    )
 
     if existing:
-        raise HTTPException(
-            status_code=400,
-            detail="Lineage already exists"
-        )
+        raise HTTPException(status_code=400, detail="Lineage already exists")
 
     if detect_cycle(db, upstream.id, downstream.id):
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid lineage: cycle detected"
-        )
+        raise HTTPException(status_code=400, detail="Invalid lineage: cycle detected")
 
     lineage = Lineage(
-        upstream_dataset_id=upstream.id,
-        downstream_dataset_id=downstream.id
+        upstream_dataset_id=upstream.id, downstream_dataset_id=downstream.id
     )
 
     try:
@@ -83,7 +71,4 @@ def create_lineage(db, data):
 
     except SQLAlchemyError:
         db.rollback()
-        raise HTTPException(
-            status_code=500,
-            detail="Database error occurred"
-        )
+        raise HTTPException(status_code=500, detail="Database error occurred")

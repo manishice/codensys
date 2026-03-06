@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from app.database.base import Base
 
+
 class ColumnModel(Base):
     __tablename__ = "columns"
 

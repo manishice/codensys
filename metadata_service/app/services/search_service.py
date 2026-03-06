@@ -15,9 +15,9 @@ def search_datasets(db, query):
                 seen.add(ds.id)
 
     # Priority 1: Table name
-    table_matches = db.query(Dataset).filter(
-        Dataset.table_name.ilike(f"%{query}%")
-    ).all()
+    table_matches = (
+        db.query(Dataset).filter(Dataset.table_name.ilike(f"%{query}%")).all()
+    )
     add_results(table_matches)
 
     # Priority 2: Column name
@@ -30,24 +30,22 @@ def search_datasets(db, query):
     add_results(column_matches)
 
     # Priority 3: Schema name
-    schema_matches = db.query(Dataset).filter(
-        Dataset.schema_name.ilike(f"%{query}%")
-    ).all()
+    schema_matches = (
+        db.query(Dataset).filter(Dataset.schema_name.ilike(f"%{query}%")).all()
+    )
     add_results(schema_matches)
 
     # Priority 4: Database name
-    database_matches = db.query(Dataset).filter(
-        Dataset.database_name.ilike(f"%{query}%")
-    ).all()
+    database_matches = (
+        db.query(Dataset).filter(Dataset.database_name.ilike(f"%{query}%")).all()
+    )
     add_results(database_matches)
 
     response = []
 
     for ds in results:
 
-        columns = db.query(ColumnModel).filter(
-            ColumnModel.dataset_id == ds.id
-        ).all()
+        columns = db.query(ColumnModel).filter(ColumnModel.dataset_id == ds.id).all()
 
         upstream = (
             db.query(Dataset)
@@ -63,16 +61,18 @@ def search_datasets(db, query):
             .all()
         )
 
-        response.append({
-            "fqn": ds.fqn,
-            "connection": ds.connection_name,
-            "database": ds.database_name,
-            "schema": ds.schema_name,
-            "table": ds.table_name,
-            "source_type": ds.source_type,
-            "columns": [{"name": c.name, "type": c.type} for c in columns],
-            "upstream": [u.fqn for u in upstream],
-            "downstream": [d.fqn for d in downstream]
-        })
+        response.append(
+            {
+                "fqn": ds.fqn,
+                "connection": ds.connection_name,
+                "database": ds.database_name,
+                "schema": ds.schema_name,
+                "table": ds.table_name,
+                "source_type": ds.source_type,
+                "columns": [{"name": c.name, "type": c.type} for c in columns],
+                "upstream": [u.fqn for u in upstream],
+                "downstream": [d.fqn for d in downstream],
+            }
+        )
 
     return response

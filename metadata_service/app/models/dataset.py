@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String
 from app.database.base import Base
 
+
 class Dataset(Base):
     __tablename__ = "datasets"
 
