@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.api.routes.database_routes import router as database_router
+from app.api.routes.dataset_routes import router as database_router
 from app.api.routes.lineage_routes import router as lineage_router
 from app.api.routes.search_routes import router as search_router
 
